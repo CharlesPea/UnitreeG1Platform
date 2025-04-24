@@ -12,7 +12,11 @@ def create_app():
     app.latest_gauge_value = None  # shared state for gauge values
     return app
 
+# app.py
+from gauge_app.config import get_config
+
 app = create_app()
+app.config.from_object(get_config())
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # Import routes after app creation to avoid circular imports
