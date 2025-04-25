@@ -96,6 +96,30 @@ def anomalies_pdf():
         download_name="anomaly_log.pdf",
         mimetype="application/pdf"
     )
+def on_mqtt_message(client, userdata, msg):
+    topic   = msg.topic
+    payload = msg.payload.decode('utf-8', errors='ignore')
+    try:
+        data = float(payload)
+    except ValueError:
+        try:
+            data = json.loads(payload)
+        except Exception:
+            return
+
+    now = datetime.now()
+
+    # record it
+    if topic in sensor_history:
+        sensor_history[topic].append((now, data))
+        thresh = Config.THRESHOLDS.get(topic, {})
+        low, high = thresh.get('low'), thresh.get('high')
+        if low is not None and (data < low or data > high):
+            anomaly_log.append({'topic': topic, 'value': data, 'time': now})
+
+    # push to any Socket.IO clients
+    if socketio_instance:
+        socketio_instance.emit('sensorData', {'topic': topic, 'data': data})
 
 
 def register_socketio_handlers(socketio, controller_to):
