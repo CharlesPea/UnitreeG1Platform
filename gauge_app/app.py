@@ -14,10 +14,14 @@ def create_app():
 
 # app.py
 from gauge_app.config import get_config
+from gauge_app.routes.anomalies import bp as anomalies_bp
+app.register_blueprint(anomalies_bp)
+
 
 app = create_app()
 app.config.from_object(get_config())
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+
 
 # Import routes after app creation to avoid circular imports
 from gauge_app.routes import web_routes, video_routes
