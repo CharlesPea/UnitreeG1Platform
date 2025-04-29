@@ -40,7 +40,7 @@ def publisher_loop(client, topic, low, high, interval):
     """Publish a new reading on `topic` every `interval` seconds."""
     while True:
         value = simulate_value(low, high)
-        payload = json.dumps({'value': value})
+        payload = json.dumps(value)
         client.publish(topic, payload)
         print(f"Published to {topic}: {payload}")
         time.sleep(interval)

@@ -288,7 +288,7 @@
         <h1>Plataforma de teleoperación G1</h1>
         <div class="header-controls">
           <button id="toggle-widget">Toggle Panel</button>
-          <button id="toggle-stream">Show Processed Stream</button>
+          <button id="screenshot-btn">Process Image</button>
         </div>
       </header>
 
@@ -653,20 +653,9 @@
         requestAnimationFrame(updateGamepad);
         const streamImg = document.getElementById("server-stream");
       });
-      const toggleBtn = document.getElementById("toggle-stream");
       const streamImg = document.getElementById("server-stream");
       let showingRaw = true;
 
-      toggleBtn.addEventListener("click", () => {
-        showingRaw = !showingRaw;
-        if (showingRaw) {
-          streamImg.src = "/video_raw";
-          toggleBtn.textContent = "Show Processed Stream";
-        } else {
-          streamImg.src = "/video_feed";
-          toggleBtn.textContent = "Show processed Stream";
-        }
-      });
       const THRESHOLDS = {
     temperaturapeacock: {low:20, high:30},
     humedadpeacock:    {low:30, high:60},
@@ -689,6 +678,19 @@
       if (data < cfg.low)  el.classList.add('value-decreasing');
     }
   });
+
+  const screenshotBtn = document.getElementById('screenshot-btn');
+screenshotBtn.addEventListener('click', async () => {
+  try {
+    const res = await fetch('/screenshot');
+    const { response, error } = await res.json();
+    if (error) throw new Error(error);
+    alert(response);
+  } catch (e) {
+    console.error(e);
+    alert('Error sending screenshot: ' + e.message);
+  }
+});
     </script>
   </body>
 </html>

@@ -1,6 +1,9 @@
 from flask import Flask
 from flask_socketio import SocketIO
 import os
+from dotenv import load_dotenv
+load_dotenv()           # this reads .env into os.environ
+
 
 # Load app configuration
 from gauge_app.config import get_config
