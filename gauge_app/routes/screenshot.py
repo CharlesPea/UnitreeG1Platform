@@ -1,5 +1,4 @@
 import base64
-import json
 import cv2
 import openai
 from flask import Blueprint, jsonify, current_app
@@ -19,8 +18,11 @@ def screenshot():
         if not success:
             return jsonify({'error': 'Failed to capture frame'}), 500
 
-        # 3) Encode to JPEG
-        ret, buf = cv2.imencode('.jpg', frame)
+        # 3) Downscale & compress for fewer tokens
+        h, w = frame.shape[:2]
+        scale = 256.0 / max(h, w)
+        small = cv2.resize(frame, (int(w*scale), int(h*scale)), interpolation=cv2.INTER_AREA)
+        ret, buf = cv2.imencode('.jpg', small, [cv2.IMWRITE_JPEG_QUALITY, 30])
         if not ret:
             return jsonify({'error': 'Failed to encode image'}), 500
 
@@ -32,25 +34,20 @@ def screenshot():
         if not openai.api_key:
             return jsonify({'error': 'OPENAI_API_KEY not set in config'}), 500
 
-        system_prompt = """
-You are a humanoid robot that is being operated remotely and I need you to briefly describe the things you see in the image you received.
-
-I want you to prioritize one object above all and that is any analog meters that you see. Your answers should look as follows:
-
-– If you see a meter:  
-  "I see what looks like a meter with a value of 20 over 100, other objects such as x and y are present in this space"
-
-– If you don’t see a meter:  
-  "I see x, y and z object in this room, no meters were found"
-        """.strip()
+        system_prompt = (
+            "You are a remote-operated humanoid. "
+            "Describe this image in one sentence, prioritizing any analog and digital meters you see. "
+            "If you see a meter, say: \u201cMeter: <value>/<scale>. Other: <list>.\u201d "
+            "If you don't see a meter check again and really make sure it is there"
+            "Otherwise: \u201cNo meters found. Objects: <LIST THE OBJECTS YOU SEE>.\u201d"
+        )
 
         resp = openai.ChatCompletion.create(
             model='gpt-4o-mini',
             messages=[
                 {'role': 'system', 'content': system_prompt},
-                {'role': 'user',
-                 'content': f"Here is the image data (base64):\n\n{img_b64}"}
-                ]
+                {'role': 'user', 'content': img_b64}
+            ]
         )
 
         # 6) Extract and return the answer
@@ -58,5 +55,5 @@ I want you to prioritize one object above all and that is any analog meters that
         return jsonify({'response': answer.strip()}), 200
 
     except Exception as e:
-        # Catch-all to ensure a JSON response
+        # Catch-all ensures JSON
         return jsonify({'error': str(e)}), 500

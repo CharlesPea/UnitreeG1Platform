@@ -256,22 +256,21 @@
       }
 
       .anomaly-button {
-  position: absolute;
-  top: 40px;
-  left: 400px;
-  z-index: 5;
-}
+        position: absolute;
+        top: 40px;
+        left: 400px;
+        z-index: 5;
+      }
 
-.anomaly-button button {
-  padding: 0.5rem 1rem;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
+      .anomaly-button button {
+        padding: 0.5rem 1rem;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
     </style>
     <!-- Include Socket.IO client -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
@@ -282,7 +281,7 @@
         Anomaly Logs
       </button>
     </div>
-    
+
     <div class="container">
       <header class="header">
         <h1>Plataforma de teleoperación G1</h1>
@@ -653,47 +652,63 @@
         requestAnimationFrame(updateGamepad);
         const streamImg = document.getElementById("server-stream");
 
+        const screenshotBtn = document.getElementById("screenshot-btn");
+        screenshotBtn.addEventListener("click", async () => {
+          try {
+            const res = await fetch("/screenshot");
+            const { response, error } = await res.json();
+            if (error) throw new Error(error);
+            alert(response);
+          } catch (e) {
+            console.error(e);
+            alert("Error sending screenshot: " + e.message);
+          }
+        });
 
-        const screenshotBtn = document.getElementById('screenshot-btn');
-screenshotBtn.addEventListener('click', async () => {
-  try {
-    const res = await fetch('/screenshot');
-    const { response, error } = await res.json();
-    if (error) throw new Error(error);
-    alert(response);
-  } catch (e) {
-    console.error(e);
-    alert('Error sending screenshot: ' + e.message);
-  }
-});
+        function speak(text) {
+          // stop any current speech
+          window.speechSynthesis.cancel();
+          // build the utterance
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.rate = 1; // playback speed (0.1–10)
+          utter.pitch = 1; // pitch (0–2)
+          // you can pick a voice here:
+          // utter.voice = speechSynthesis.getVoices().find(v => v.name === 'Google UK English Male');
+          window.speechSynthesis.speak(utter);
+        }
 
-socket.on('sensorData', ({topic, data}) => {
-    const cfg = THRESHOLDS[topic];
-    const el  = sensorMapping[topic].element;
-    el.textContent = sensorMapping[topic].format(data);
+        fetch("/screenshot")
+          .then((res) => res.json())
+          .then(({ response, error }) => {
+            if (error) return alert(error);
+            speak(response);
+          });
 
-    // reset
-    el.classList.remove('value-increasing','value-decreasing');
+        socket.on("sensorData", ({ topic, data }) => {
+          const cfg = THRESHOLDS[topic];
+          const el = sensorMapping[topic].element;
+          el.textContent = sensorMapping[topic].format(data);
 
-    if (cfg) {
-      if (data > cfg.high) el.classList.add('value-increasing');
-      if (data < cfg.low)  el.classList.add('value-decreasing');
-    }
-  });
+          // reset
+          el.classList.remove("value-increasing", "value-decreasing");
+
+          if (cfg) {
+            if (data > cfg.high) el.classList.add("value-increasing");
+            if (data < cfg.low) el.classList.add("value-decreasing");
+          }
+        });
       });
       const streamImg = document.getElementById("server-stream");
       let showingRaw = true;
 
       const THRESHOLDS = {
-    temperaturapeacock: {low:20, high:30},
-    humedadpeacock:    {low:30, high:60},
-    luzpeacock:        {low:300, high:1000},
-    presionpeacock:    {low:850, high:1100},
-    calidadairepeacock:{low:0, high:100},
-    poderpeacock:      {low:20, high:100}
-  };
-
-
+        temperaturapeacock: { low: 20, high: 30 },
+        humedadpeacock: { low: 30, high: 60 },
+        luzpeacock: { low: 300, high: 1000 },
+        presionpeacock: { low: 850, high: 1100 },
+        calidadairepeacock: { low: 0, high: 100 },
+        poderpeacock: { low: 20, high: 100 },
+      };
     </script>
   </body>
 </html>
