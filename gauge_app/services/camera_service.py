@@ -11,6 +11,7 @@ from gauge_app.utils.gauge_utils import (
 # Camera will be set in init_app()
 camera = None
 
+
 def init_app(app):
     """Initialize the global camera using settings from app.config."""
     global camera
@@ -21,6 +22,8 @@ def init_app(app):
     camera = cv2.VideoCapture(idx)
     camera.set(cv2.CAP_PROP_FRAME_WIDTH,  width)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    print("📷  Opening camera index", app.config['CAMERA_INDEX'])
+
 
 
 def gen_raw_frames():

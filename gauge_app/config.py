@@ -7,6 +7,10 @@ class Config:
     TESTING = False
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev_key')
     
+
+    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+
+
     # MQTT settings
     MQTT_BROKER = os.environ.get('MQTT_BROKER', 'broker-cn.emqx.io')
     MQTT_PORT = int(os.environ.get('MQTT_PORT', 1883))
@@ -17,8 +21,8 @@ class Config:
     CONTROLLER_TOPIC = os.environ.get('CONTROLLER_TOPIC', 'carlospeacock')
     
     # Camera settings
-    CAMERA_WIDTH = int(os.environ.get('CAMERA_WIDTH', 480))
-    CAMERA_HEIGHT = int(os.environ.get('CAMERA_HEIGHT', 480))
+    CAMERA_WIDTH = int(os.environ.get('CAMERA_WIDTH', 1600))
+    CAMERA_HEIGHT = int(os.environ.get('CAMERA_HEIGHT', 900))
     CAMERA_INDEX = int(os.environ.get('CAMERA_INDEX', 0))
 
     THRESHOLDS = {
