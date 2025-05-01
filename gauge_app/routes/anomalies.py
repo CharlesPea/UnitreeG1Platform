@@ -12,6 +12,9 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from gauge_app.services.mqtt_service import sensor_history, anomaly_log
 from datetime import datetime
+from gauge_app.services.screenshot_service import screenshot_history
+from reportlab.platypus import PageBreak, Spacer, Image as PlatypusImage, Paragraph
+from reportlab.lib.units import inch
 
 bp = Blueprint('anomalies', __name__)
 
@@ -297,6 +300,24 @@ def anomalies_pdf():
     anomaly_table = create_anomaly_table(detail_data)
     elements.append(anomaly_table)
     
+        # --- Attach screenshots & GPT outputs ---
+    if screenshot_history:
+        elements.append(PageBreak())
+        elements.append(Paragraph("Screenshots & AI Responses", styles['ModernHeading']))
+        elements.append(Spacer(1, 0.2*inch))
+        for shot in screenshot_history:
+            img_buf = io.BytesIO(shot['image_bytes'])
+            img_buf.seek(0)
+            # scale image to fit (max width 4")
+            img = PlatypusImage(img_buf, width=4*inch)
+            elements.append(img)
+            elements.append(Spacer(1, 0.1*inch))
+            elements.append(Paragraph(
+                f"<b>{shot['time'].strftime('%Y-%m-%d %H:%M:%S')}</b>: {shot['response']}",
+                styles['ModernBody']
+            ))
+            elements.append(Spacer(1, 0.3*inch))
+
     # Build the document with header and footer
     doc.build(elements,
               onFirstPage=_header_footer,

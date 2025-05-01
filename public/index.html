@@ -278,7 +278,7 @@
   <body>
     <div class="anomaly-button">
       <button onclick="window.open('/anomalies/pdf','_blank')">
-        Anomaly Logs
+        Logs and anomalies
       </button>
     </div>
 
@@ -652,18 +652,19 @@
         requestAnimationFrame(updateGamepad);
         const streamImg = document.getElementById("server-stream");
 
-        const screenshotBtn = document.getElementById("screenshot-btn");
-        screenshotBtn.addEventListener("click", async () => {
-          try {
-            const res = await fetch("/screenshot");
-            const { response, error } = await res.json();
-            if (error) throw new Error(error);
-            alert(response);
-          } catch (e) {
-            console.error(e);
-            alert("Error sending screenshot: " + e.message);
+        async function onProcessClick() {
+       const res = await fetch('/screenshot');
+       const { response, error } = await res.json();
+       if (error) {
+        console.error(error);
+          return;
+            }
+           speak(response);
           }
-        });
+
+// wire up your button
+document.getElementById('screenshot-btn')
+  .addEventListener('click', onProcessClick);
 
         function speak(text) {
           // stop any current speech
