@@ -300,10 +300,10 @@ def anomalies_pdf():
     anomaly_table = create_anomaly_table(detail_data)
     elements.append(anomaly_table)
     
-        # --- Attach screenshots & GPT outputs ---
     if screenshot_history:
         elements.append(PageBreak())
-        elements.append(Paragraph("Screenshots & AI Responses", styles['ModernHeading']))
+        elements.append(Paragraph("." \
+        "Inspection results", styles['ModernHeading']))
         elements.append(Spacer(1, 0.2*inch))
         for shot in screenshot_history:
             img_buf = io.BytesIO(shot['image_bytes'])

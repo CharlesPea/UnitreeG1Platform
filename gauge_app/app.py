@@ -13,9 +13,10 @@ def create_app():
     public_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), '..', 'public')
     )
-    app = Flask(__name__, static_folder=public_path, template_folder=public_path)
-    app.latest_gauge_value = None
-
+    app = Flask(__name__,
+                static_folder=public_path,
+                static_url_path='',       # <-- serve public/ at “/…”
+                template_folder=public_path)
     # 3. Load your Config class
     app.config.from_object(get_config())
 

@@ -4,278 +4,164 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Humanoid Avatar Tele-Operation Platform</title>
-    <style>
-      :root {
-        --primary: #3498db;
-        --dark: #2c3e50;
-        --light: #ecf0f1;
-        --accent: #e74c3c;
-        --background: #1a1a2e;
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
-
-      body {
-        background-color: var(--background);
-        color: var(--light);
-        min-height: 100vh;
-      }
-
-      .container {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        padding: 1rem;
-        max-width: 100vw;
-        max-height: 100vh;
-        overflow: hidden;
-      }
-
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        text-align: center;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        background-color: rgba(44, 62, 80, 0.6);
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .header h1 {
-        font-size: 1.5rem;
-      }
-
-      .header-controls {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .header-controls button {
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
-      }
-
-      #toggle-widget {
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
-        cursor: pointer;
-        background: var(--primary);
-        color: var(--light);
-        border: none;
-        border-radius: 4px;
-      }
-
-      .content {
-        display: flex;
-        flex: 1;
-        gap: 1rem;
-        flex-direction: column;
-        position: relative;
-        flex-wrap: wrap;
-      }
-
-      @media (min-width: 768px) {
-        .content {
-          flex-direction: row;
-        }
-      }
-
-      .video-container {
-        flex: 3;
-        position: relative;
-        overflow: hidden;
-        border-radius: 8px;
-        background-color: #000;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .widget {
-        flex: 1;
-        background-color: rgba(44, 62, 80, 0.6);
-        border-radius: 8px;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        min-width: 150px;
-        max-width: 250px;
-      }
-
-      /* Overlay mode styles for the widget */
-      .widget.overlay {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 2;
-        width: 20vw;
-        max-width: 250px;
-        background-color: rgba(44, 62, 80, 0.8);
-      }
-
-      .widget-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        border-bottom: 1px solid var(--primary);
-        padding-bottom: 0.5rem;
-      }
-
-      .widget-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-      }
-
-      .stat-container {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem;
-        border-radius: 4px;
-        background-color: rgba(26, 26, 46, 0.3);
-        transition: transform 0.2s, background-color 0.3s;
-      }
-
-      .stat-item:hover {
-        transform: translateX(5px);
-        background-color: rgba(52, 152, 219, 0.2);
-      }
-
-      .stat-item.updating {
-        background-color: rgba(52, 152, 219, 0.1);
-      }
-
-      .icon {
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary);
-      }
-
-      .stat-info {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-      }
-
-      .stat-label {
-        font-size: 0.75rem;
-        opacity: 0.8;
-      }
-
-      .stat-value {
-        font-weight: 600;
-        font-size: 1rem;
-        transition: color 0.3s;
-      }
-
-      .value-increasing {
-        color: #2ecc71;
-      }
-
-      .value-decreasing {
-        color: #e74c3c;
-      }
-
-      .footer {
-        text-align: center;
-        padding: 1rem;
-        margin-top: 1rem;
-        background-color: rgba(44, 62, 80, 0.6);
-        border-radius: 8px;
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .pulse {
-        animation: pulse 2s infinite;
-      }
-
-      @keyframes pulse {
-        0% {
-          opacity: 0.6;
-        }
-        50% {
-          opacity: 1;
-        }
-        100% {
-          opacity: 0.6;
-        }
-      }
-
-      .timestamp {
-        font-size: 0.8rem;
-        opacity: 0.7;
-        margin-top: 1rem;
-        text-align: center;
-      }
-
-      /* Controller Diagram styles */
-      #controller-diagram {
-        margin-top: auto; /* push it to the bottom */
-        max-height: 200px; /* or 30% of widget height */
-        overflow-y: auto; /* scroll when too tall */
-        background: rgba(26, 26, 46, 0.3);
-        padding: 0.5rem;
-        border-radius: 4px;
-      }
-      #controller-diagram h3 {
-        margin-bottom: 0.5rem;
-      }
-      #controller-diagram ul {
-        list-style: none;
-        padding-left: 0;
-      }
-      #controller-diagram li {
-        margin-bottom: 0.25rem;
-      }
-
-      .anomaly-button {
-        position: absolute;
-        top: 40px;
-        left: 400px;
-        z-index: 5;
-      }
-
-      .anomaly-button button {
-        padding: 0.5rem 1rem;
-        background: var(--accent);
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        cursor: pointer;
-      }
-    </style>
     <!-- Include Socket.IO client -->
+     <link rel="stylesheet" href="/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="./script.js"></script>
   </head>
   <body>
+<!-- Panel Toggle Button -->
+<button class="panel-toggle" id="panel-toggle">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12"></line>
+    <line x1="3" y1="6" x2="21" y2="6"></line>
+    <line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</button>
+
+<!-- Side Panel -->
+<div class="side-panel" id="side-panel">
+  <div class="side-panel-header">
+    <h3>Control Panel</h3>
+    <button class="close-panel" id="close-panel">&times;</button>
+  </div>
+  <div class="side-panel-content">
+    <!-- System Controls -->
+    <div class="button-group">
+      <h4 class="button-group-title">System Controls</h4>
+      <div class="button-group-content">
+        <button class="panel-button" id="toggle-widget-panel">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+          </svg>
+          Toggle Info Panel
+        </button>
+        <button class="panel-button" id="screenshot-btn-panel">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          Process Image
+        </button>
+        <button class="panel-button" id="view-logs-panel">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Logs & Anomalies
+        </button>
+      </div>
+    </div>
+
+    <!-- Robot Controls -->
+    <div class="button-group">
+      <h4 class="button-group-title">Robot Controls</h4>
+      <div class="button-group-content">
+        <button class="panel-button success" id="start-robot">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Start Robot
+        </button>
+        <button class="panel-button danger" id="stop-robot">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+          Stop Robot
+        </button>
+        <button class="panel-button" id="reset-position">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 2v6h6"></path>
+            <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
+          </svg>
+          Reset Position
+        </button>
+      </div>
+    </div>
+
+    <!-- Camera Controls -->
+    <div class="button-group">
+      <h4 class="button-group-title">Camera Controls</h4>
+      <div class="button-group-content">
+        <button class="panel-button" id="camera-settings">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Camera Settings
+        </button>
+        <button class="panel-button" id="zoom-in">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="11" y1="8" x2="11" y2="14"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+          Zoom In
+        </button>
+        <button class="panel-button" id="zoom-out">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+          Zoom Out
+        </button>
+      </div>
+    </div>
+
+    <!-- Environment Controls -->
+    <div class="button-group">
+      <h4 class="button-group-title">Environment</h4>
+      <div class="button-group-content">
+        <button class="panel-button" id="weather-forecast">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="m4.93 4.93 1.41 1.41"></path>
+            <path d="m17.66 17.66 1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="m6.34 17.66-1.41 1.41"></path>
+            <path d="m19.07 4.93-1.41 1.41"></path>
+            <path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"></path>
+          </svg>
+          Weather Forecast
+        </button>
+        <button class="panel-button" id="terrain-analysis">
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m2 22 3-3"></path>
+            <path d="M10 9v0"></path>
+            <path d="M14 9v0"></path>
+            <path d="M13 17v0"></path>
+            <path d="M17 13v0"></path>
+            <path d="M17 5v0"></path>
+            <path d="M2 5h4"></path>
+            <path d="M5 2v4"></path>
+            <path d="m9 20 3-3"></path>
+            <path d="m9 14 3-3"></path>
+            <path d="m17 9-3 3"></path>
+            <path d="m13 5-3 3"></path>
+            <path d="m9 14-5 5"></path>
+            <path d="m5 8 5 5"></path>
+          </svg>
+          Terrain Analysis
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay for closing panel on mobile -->
+<div class="panel-overlay" id="panel-overlay"></div>
+
+<!-- Side Panel -->
+<div class="side-panel" id="side-panel
     <div class="anomaly-button">
       <button onclick="window.open('/anomalies/pdf','_blank')">
         Logs and anomalies
@@ -507,209 +393,5 @@
         <span class="pulse">Use the joystick to move the robot</span>
       </footer>
     </div>
-
-    <script>
-      window.addEventListener("DOMContentLoaded", function () {
-        // --- Initialize Socket.IO ---
-        const socket = io();
-        // throttle settings
-        let lastControllerEmitTime = 0;
-        const emitInterval = 1000 / 3; // ≈333 ms between sends
-        // --- Handle sensor data from the server ---
-        const sensorMapping = {
-          temperaturapeacock: {
-            element: document.getElementById("temperature-value"),
-            format: (val) => val + "°C",
-          },
-          presionpeacock: {
-            element: document.getElementById("pressure-value"),
-            format: (val) => val + " hPa",
-          },
-          luzpeacock: {
-            element: document.getElementById("light-value"),
-            format: (val) => val + " lux",
-          },
-          humedadpeacock: {
-            element: document.getElementById("humidity-value"),
-            format: (val) => val + "%",
-          },
-          calidadairepeacock: {
-            element: document.getElementById("airquality-value"),
-            format: (val) => {
-              const aqi = Number(val);
-              let quality = "Good";
-              if (aqi > 50) quality = "Moderate";
-              if (aqi > 100) quality = "Unhealthy";
-              return `${quality} (${aqi} AQI)`;
-            },
-          },
-          poderpeacock: {
-            element: document.getElementById("power-value"),
-            format: (val) => val + "%",
-          },
-        };
-
-        socket.on("sensorData", ({ topic, data }) => {
-          console.log("socket → sensorData", topic, data);
-          if (sensorMapping[topic]) {
-            sensorMapping[topic].element.textContent =
-              sensorMapping[topic].format(data);
-          }
-        });
-
-        // --- Widget Toggle Functionality ---
-        const widgetModes = ["side", "overlay", "off"];
-        let widgetModeIndex = 0;
-        const widget = document.querySelector(".widget");
-        const content = document.querySelector(".content");
-        const videoContainer = document.querySelector(".video-container");
-        const toggleButton = document.getElementById("toggle-widget");
-
-        function updateWidgetMode() {
-          const mode = widgetModes[widgetModeIndex];
-          if (mode === "side") {
-            if (widget.parentNode !== content) {
-              content.appendChild(widget);
-            }
-            widget.classList.remove("overlay");
-            widget.style.display = "flex";
-          } else if (mode === "overlay") {
-            if (widget.parentNode !== videoContainer) {
-              videoContainer.appendChild(widget);
-            }
-            widget.classList.add("overlay");
-            widget.style.display = "flex";
-          } else if (mode === "off") {
-            widget.style.display = "none";
-          }
-          toggleButton.textContent = "Toggle Panel (" + mode + ")";
-        }
-
-        toggleButton.addEventListener("click", function () {
-          widgetModeIndex = (widgetModeIndex + 1) % widgetModes.length;
-          updateWidgetMode();
-        });
-
-        updateWidgetMode();
-
-        // --- Gamepad Handling and Controller Data ---
-        let gamepadState = {};
-
-        function updateGamepad() {
-          const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-          const gp = gamepads[0];
-          if (gp) {
-            gamepadState = {
-              id: gp.id,
-              index: gp.index,
-              buttons: gp.buttons.map((button) => ({
-                pressed: button.pressed,
-                value: button.value,
-              })),
-              axes: gp.axes.slice(0),
-            };
-
-            let diagramHTML = `<h3>Controller Status</h3>`;
-            diagramHTML += `<p><strong>ID:</strong> ${gamepadState.id}</p>`;
-            diagramHTML += `<p><strong>Index:</strong> ${gamepadState.index}</p>`;
-            diagramHTML += `<h4>Buttons</h4><ul>`;
-            gp.buttons.forEach((button, index) => {
-              diagramHTML += `<li>Button ${index}: ${button.value.toFixed(2)} ${
-                button.pressed ? "(pressed)" : ""
-              }</li>`;
-            });
-            diagramHTML += `</ul>`;
-            diagramHTML += `<h4>Axes</h4><ul>`;
-            gp.axes.forEach((axis, index) => {
-              diagramHTML += `<li>Axis ${index}: ${axis.toFixed(2)}</li>`;
-            });
-            diagramHTML += `</ul>`;
-            document.getElementById("controller-diagram").innerHTML =
-              diagramHTML;
-
-            // Extract and send joystick data [x1, y1, x2, y2] via Socket.IO
-            // Extract and send joystick data [x1, y1, x2, y2] via Socket.IO,
-            // rounding each value to two decimals.
-            const joystickData = [
-              Math.round((gp.axes[0] || 0) * 100) / 100,
-              Math.round((gp.axes[1] || 0) * 100) / 100,
-              Math.round((gp.axes[2] || 0) * 100) / 100,
-              Math.round((gp.axes[3] || 0) * 100) / 100,
-            ];
-            const now = Date.now();
-            if (now - lastControllerEmitTime >= emitInterval) {
-              socket.emit("controllerData", joystickData);
-              lastControllerEmitTime = now;
-            }
-          } else {
-            document.getElementById(
-              "controller-diagram"
-            ).innerHTML = `<h3>Controller Status</h3><p>No controller detected.</p>`;
-          }
-          requestAnimationFrame(updateGamepad);
-        }
-
-        requestAnimationFrame(updateGamepad);
-        const streamImg = document.getElementById("server-stream");
-
-        async function onProcessClick() {
-       const res = await fetch('/screenshot');
-       const { response, error } = await res.json();
-       if (error) {
-        console.error(error);
-          return;
-            }
-           speak(response);
-          }
-
-// wire up your button
-document.getElementById('screenshot-btn')
-  .addEventListener('click', onProcessClick);
-
-        function speak(text) {
-          // stop any current speech
-          window.speechSynthesis.cancel();
-          // build the utterance
-          const utter = new SpeechSynthesisUtterance(text);
-          utter.rate = 1; // playback speed (0.1–10)
-          utter.pitch = 1; // pitch (0–2)
-          // you can pick a voice here:
-          // utter.voice = speechSynthesis.getVoices().find(v => v.name === 'Google UK English Male');
-          window.speechSynthesis.speak(utter);
-        }
-
-        fetch("/screenshot")
-          .then((res) => res.json())
-          .then(({ response, error }) => {
-            if (error) return alert(error);
-            speak(response);
-          });
-
-        socket.on("sensorData", ({ topic, data }) => {
-          const cfg = THRESHOLDS[topic];
-          const el = sensorMapping[topic].element;
-          el.textContent = sensorMapping[topic].format(data);
-
-          // reset
-          el.classList.remove("value-increasing", "value-decreasing");
-
-          if (cfg) {
-            if (data > cfg.high) el.classList.add("value-increasing");
-            if (data < cfg.low) el.classList.add("value-decreasing");
-          }
-        });
-      });
-      const streamImg = document.getElementById("server-stream");
-      let showingRaw = true;
-
-      const THRESHOLDS = {
-        temperaturapeacock: { low: 20, high: 30 },
-        humedadpeacock: { low: 30, high: 60 },
-        luzpeacock: { low: 300, high: 1000 },
-        presionpeacock: { low: 850, high: 1100 },
-        calidadairepeacock: { low: 0, high: 100 },
-        poderpeacock: { low: 20, high: 100 },
-      };
-    </script>
   </body>
 </html>

@@ -23,7 +23,7 @@ class Config:
     # Camera settings
     CAMERA_WIDTH = int(os.environ.get('CAMERA_WIDTH', 1600))
     CAMERA_HEIGHT = int(os.environ.get('CAMERA_HEIGHT', 900))
-    CAMERA_INDEX = int(os.environ.get('CAMERA_INDEX', 2))
+    CAMERA_INDEX = int(os.environ.get('CAMERA_INDEX', 0))
 
     THRESHOLDS = {
         'temperaturapeacock': { 'low': 20.0, 'high': 30.0 },   # °C (68–86°F) :contentReference[oaicite:4]{index=4}
